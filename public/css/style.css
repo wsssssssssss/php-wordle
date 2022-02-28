@@ -1,0 +1,40 @@
+*{margin: 0; padding:0; box-sizing: border-box;}
+ul, li{list-style: none;}
+a{text-decoration: none; color: inherit;}
+.grid{display: grid;}
+.flex{display: flex;}
+.none{display: none;}
+
+
+#app{position: relative; width: 450px; margin: 0 auto; padding: 15px 10px;}
+
+#app header{width: 100%; line-height: 70px; padding: 5px 15px; justify-content: space-between; align-items: center; border: 3px solid #666; border-left: none; border-right: none;}
+#app header .title{margin: 0 30px; font-size: 35px; font-weight: bold;}
+#app header .icon{width: 30px; height: 30px; overflow: hidden; border-radius: 5px;}
+#app header img{display: block; object-fit: contain; width: 100%; height: 100%; cursor: pointer;}
+
+
+#app main{width: 100%;}
+#app main section{flex-direction: column; gap: 10px;}
+#app main .words{width: 100%; margin: 20px auto; flex-direction: column;}
+#app main .words .word{width: 100%; justify-content: center; gap: 5px; transition: .5s;}
+#app main .words .letter{width: 70px; height: 70px; justify-content: center; align-items: center; border: 3px solid #eee; margin: 5px 0;}
+#app main .words .letter p{font-size: 30px; font-weight: bold;}
+
+#app main .keyborder{width: 100%;}
+#app main .keyborder>div{width: 100%; margin: 0 auto; justify-content: center; gap: 5px; margin: 7px 0;}
+
+#app main .keyborder button{padding: 20px 10px; border: none; outline: none; border-radius: 3px; cursor: pointer; transition: .3s;}
+#app main .keyborder button:hover{background: #333; color: #fff; transition: .3s;}
+
+#app .popup{position: absolute; width: 100%; height: 100%; left: 0; top: 0; justify-content: center; align-items: center; background: rgba(0, 0, 0, .2);}
+#app .popup .share_popup{width: 300px; height: 350px; flex-direction: column; align-items: center; justify-content: center; gap: 25px; background: #fff; padding: 30px 10px; border-radius: 15px;}
+
+#app .popup .share_popup p{font-size: 20px; font-weight: 600;}
+#app .popup .share_popup .tiles{height: 50%;}
+#app .popup .share_popup .btns{width: 70%;}
+#app .popup .share_popup .btns button{width: 100%; line-height: 40px; margin: 3px 0; background: #fff; border: 1px solid #eee; border-radius: 5px; outline: none; cursor: pointer;}
+#app .popup .share_popup .btns .share{background: rgb(107, 204, 239); color: #fff;}
+
+
+/* #app{background: rgb(107, 204, 239);} */
