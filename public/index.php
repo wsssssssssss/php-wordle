@@ -116,16 +116,10 @@
             <div class="share_popup flex">
                 <p>Wordle <?=date("Y-m-d") ?>, <span class="chance">5</span>/6</p>
 
-                <div class="tiles">
-                    ⬛⬛⬛⬛🟩 <br>
-                    🟨⬛⬛⬛⬛ <br>
-                    🟩🟩⬛⬛🟨 <br>
-                    🟩🟩🟩🟩🟩 <br>
-                </div>
+                <div class="tiles"></div>
                 <div class="btns">
                     <button class="share">share</button>
                     <button class="reset">reset</button>
-
                 </div>
 
                 

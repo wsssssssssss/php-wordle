@@ -1,42 +1,57 @@
 const keyBorderBtn = document.querySelectorAll("#app .keyborder button");
+const resetBtn = document.querySelector("#app .popup .reset");
 const words = document.querySelector("#app .words");
+const popup = document.querySelector("#app .popup");
 
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
+const totalTile = [];
 const word = [];
 let answer = [];
 let chance = 0;
 
-// 영어 단어들(정답들)
-const wordArr = ['basic', 'beach', 'begin', 'below', 'bench', 'black', 'blind', 'blood', 'brain', 'bread', 'break', 'bring', 'brown', 'build',
-'carry', 'catch', 'chair', 'cheap', 'check', 'child', 'chose' , 'class', 'clean', 'clear', 'clock', 'close', 'count', 'cover',
-'cream', 'crime', 'cross', 'crowd', 'dance', 'dream', 'dress' , 'drink', 'drive', 'early', 'earth', 'empty', 'enjoy', 'enter',
-'error', 'event', 'every', 'exist', 'false', 'field', 'fight' , 'first', 'floor', 'focus', 'force', 'frame', 'fresh', 'front',
-'fruit', 'funny', 'glass', 'grade', 'great', 'green', 'group' , 'guess', 'guest', 'happy', 'heart', 'heavy', 'horse', 'house',
-'human', 'image', 'large', 'later', 'laugh', 'learn', 'leave' , 'level', 'light', 'local', 'lucky', 'lunch', 'magic', 'major',
-'march', 'match', 'maybe', 'metal', 'money', 'month', 'mouse', 'mouth', 'movie', 'music', 'never', 'night', 'noise', 'young',
-'ocean', 'often', 'order', 'other', 'paper', 'party', 'peace' , 'phone', 'photo', 'place', 'plane', 'plant', 'power', 'press',
-'price', 'pride', 'print', 'prize', 'proud', 'quick', 'quiet' , 'reach', 'ready', 'right', 'river', 'rough', 'round', 'scene',
-'score', 'sense', 'serve', 'shape', 'share', 'sharp', 'shelf' , 'shirt', 'shock', 'short', 'since', 'skill', 'sleep', 'small',
-'smart', 'smile', 'smoke', 'sorry', 'sound', 'space', 'speak' , 'speed', 'spend', 'sport', 'stage', 'stand', 'start', 'steel',
-'stick', 'still', 'stone', 'store', 'storm', 'story', 'study' , 'style', 'sugar', 'super', 'sweet', 'table', 'taste', 'teach',
-'thank', 'theme', 'there', 'thick', 'thing', 'think', 'third' , 'throw', 'tight', 'tired', 'title', 'today', 'total', 'touch',
-'tough', 'tower', 'train', 'treat', 'trust', 'twice', 'under' , 'until', 'upset', 'usual', 'visit', 'voice', 'waste', 'watch',
-'water', 'wheel', 'while', 'white', 'whole', 'woman' , 'world', 'worry', 'write', 'wrong'];
-
+// 영어 단어들
+let wordArr = [];
 
 const randomFn = _ => {
     return Math.floor(Math.random()*wordArr.length) + 1;
 };
 
 const reset = _ => {
-    [...document.querySelectorAll("#app .words .letter p")].forEach( ele => ele.innerText = '' );
+    [...document.querySelectorAll("#app .words .letter")].forEach( ele => {
+        ele.removeAttribute("style");
+        ele.children[0].removeAttribute("style");
+        ele.children[0].innerText = '';
+    } );
+    keyBorderBtn.forEach( ele => ele.removeAttribute("style"));
+    popup.style.display = "none";
     word.splice(0, word.length);
+    totalTile.splice(0, totalTile.length);
     chance = 0;
+    answer = wordArr[randomFn()].split("");
+    console.log(answer);
 };
 
 const gameEnd = _ => {
-    if(word === answer) {
-        console.log('game-end');
+    const result = answer.every( (ans, idx) => {
+        return ans.toUpperCase() == word[idx];
+    } )
+    if(result || chance === 6) {
+        popup.style.display = "flex";
+        document.querySelector("#app .popup .chance").innerText = chance;
+        document.querySelector("#app .popup .tiles").innerHTML = `
+        ${totalTile.map( arr => {
+            const line = arr.map( ele => {
+                if(ele === "#787c7e") {
+                    return '⬛';
+                } else if(ele === "#c9b458") {
+                    return '🟨';
+                } else {
+                    return '🟩';
+                }
+            } ).join("")
+            return `<div>${line}</div>`;
+        } ).join("")}
+        `;
     }
 };
 
@@ -45,6 +60,7 @@ const alphabetChk = _ => {
         const result = answer.some( ans => {
             return ans.toUpperCase() === wor;
         } )
+
         if(result) {
             if(wor === answer[idx].toUpperCase()) {
                 return "#6aaa64";
@@ -55,6 +71,8 @@ const alphabetChk = _ => {
             return "#787c7e";
         }
     } );
+
+    totalTile.push(color);
 
     [...words.children[chance].children].forEach( (ele, idx) => {
         ele.style.background = color[idx];
@@ -103,9 +121,9 @@ const keyBorderFn = key => {
         };
         apiSearch();
         alphabetChk();
-        gameEnd();
-
+        
         chance++;
+        gameEnd();
         word.splice(0, word.length);
     } else {
         if(word.length < 5) {
@@ -135,12 +153,16 @@ const keyBorderClickHandle = e => {
 };
 
 // 웹 페이지 로드시 실행
-const init = _ => {
+const init = async _ => {
     keyBorderBtn.forEach( ele => ele.addEventListener('click', keyBorderClickHandle) );
     window.addEventListener('keydown', keyDownHandle);
+    resetBtn.addEventListener('click', reset);
+
+    wordArr = await fetch("app/words.json").then(data => {
+        return data.json();
+    });
 
     answer = wordArr[randomFn()].split("");
-    
     console.log(answer);
 };
 
