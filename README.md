@@ -4,7 +4,7 @@
 
 Wordle은 6번의 시도로 영어 단어가 무엇인지 맞추는 게임이다.
 
-(UI 참고만)
+(UI 참고만) <br />
 <img width="402" alt="image" src="https://user-images.githubusercontent.com/32596517/154688302-d3e5275f-ce91-4357-a8a2-e7414d59dba6.png">
 
 ### 사전 정보
