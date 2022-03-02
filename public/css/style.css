@@ -16,6 +16,9 @@ a{text-decoration: none; color: inherit;}
 
 #app main{width: 100%;}
 #app main section{flex-direction: column; gap: 10px;}
+
+#app main .time{padding: 10px 0 0 0; font-size: 25px; text-align: right;}
+
 #app main .words{width: 100%; margin: 20px auto; flex-direction: column;}
 #app main .words .word{width: 100%; justify-content: center; gap: 5px; transition: .5s;}
 #app main .words .letter{width: 70px; height: 70px; justify-content: center; align-items: center; border: 3px solid #eee; margin: 5px 0;}

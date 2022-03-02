@@ -1,22 +1,46 @@
 const keyBorderBtn = document.querySelectorAll("#app .keyborder button");
 const resetBtn = document.querySelector("#app .popup .reset");
+const shareBtn = document.querySelector("#app .popup .share");
 const words = document.querySelector("#app .words");
 const popup = document.querySelector("#app .popup");
 
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
+
+let date = new Date();
+const maxTime = 900000;  // 15분
+const time = {
+    min: 0,
+    sec: 0
+};
+
 const totalTile = [];
 const word = [];
 let answer = [];
 let chance = 0;
+let setTimer = null;
+let playing = false;
 
-// 영어 단어들
+// 영어 단어담는 배열
 let wordArr = [];
 
+// 랜덤한 수 리턴 해주는 함수
 const randomFn = _ => {
     return Math.floor(Math.random()*wordArr.length) + 1;
 };
 
-const reset = _ => {
+// 클립보드에 게임결과 복사해주는 함수
+const shareHandle = _ => {
+    const text = `
+${document.querySelector("#app .popup p").innerText}
+PlayTime ${time.min}:${time.sec}
+${document.querySelector("#app .popup .tiles").innerText
+    }`;
+
+    navigator.clipboard.writeText(text);
+};
+
+// 게임 리셋 해주는 함수
+const resetHandle = _ => {
     [...document.querySelectorAll("#app .words .letter")].forEach( ele => {
         ele.removeAttribute("style");
         ele.children[0].removeAttribute("style");
@@ -29,13 +53,44 @@ const reset = _ => {
     chance = 0;
     answer = wordArr[randomFn()].split("");
     console.log(answer);
+
+    setTimer = setInterval(timer, 1000);
+    time.min = 0;
+    time.sec = 0;
+    document.querySelector("#app .time .min").innerText = time.min;
+    document.querySelector("#app .time .sec").innerText = time.sec;
+
+    date = new Date();
 };
 
+// 타이머
+const timer = _ => {
+    const nowDate = new Date();
+
+    if(time.sec >= 60) {
+        time.sec = 0;
+        time.min++;
+    }
+    time.sec++;
+
+    document.querySelector("#app .time .min").innerText = time.min;
+    document.querySelector("#app .time .sec").innerText = time.sec;
+
+    if(Date.parse(nowDate) === Date.parse(date) + maxTime){
+        alert("답 갱신되어 게임이 리셋됩니다.");
+        clearInterval(setTimer);
+        resetHandle();
+    }
+};
+
+// 게임이 끝났는지 안 끝났는지 판단하는 함수
 const gameEnd = _ => {
     const result = answer.every( (ans, idx) => {
         return ans.toUpperCase() == word[idx];
     } )
     if(result || chance === 6) {
+        playing = true;
+        clearInterval(setTimer);
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
         document.querySelector("#app .popup .tiles").innerHTML = `
@@ -55,6 +110,7 @@ const gameEnd = _ => {
     }
 };
 
+// 입력한 단어가 정답인지 아닌지 체크해주는 함수
 const alphabetChk = _ => {
     const color = word.map( (wor, idx) => {
         const result = answer.some( ans => {
@@ -138,7 +194,7 @@ const keyBorderFn = key => {
 const keyDownHandle = e => {
     const key = e.key.toUpperCase();
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6) {
+    if(boll && chance < 6 && !playing) {
         keyBorderFn(key);
     }
 };
@@ -147,7 +203,7 @@ const keyDownHandle = e => {
 const keyBorderClickHandle = e => {
     const key = e.target.innerText.replace(' ', '');
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6) {
+    if(boll && chance < 6 && !playing) {
         keyBorderFn(key);
     }
 };
@@ -156,14 +212,16 @@ const keyBorderClickHandle = e => {
 const init = async _ => {
     keyBorderBtn.forEach( ele => ele.addEventListener('click', keyBorderClickHandle) );
     window.addEventListener('keydown', keyDownHandle);
-    resetBtn.addEventListener('click', reset);
-
+    resetBtn.addEventListener('click', resetHandle);
+    shareBtn.addEventListener('click', shareHandle);
+    setTimer = setInterval(timer, 1000);
+    
     wordArr = await fetch("app/words.json").then(data => {
         return data.json();
     });
 
     answer = wordArr[randomFn()].split("");
-    console.log(answer);
+    console.log(answer);    
 };
 
 window.onload = _ => {
