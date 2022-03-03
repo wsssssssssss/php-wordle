@@ -18,7 +18,7 @@ const word = [];
 let answer = [];
 let chance = 0;
 let setTimer = null;
-let playing = false;
+let playing = true;
 
 // 영어 단어담는 배열
 let wordArr = [];
@@ -61,6 +61,8 @@ const resetHandle = _ => {
     document.querySelector("#app .time .sec").innerText = time.sec;
 
     date = new Date();
+
+    playing = true;
 };
 
 // 타이머
@@ -89,7 +91,7 @@ const gameEnd = _ => {
         return ans.toUpperCase() == word[idx];
     } )
     if(result || chance === 6) {
-        playing = true;
+        playing = false;
         clearInterval(setTimer);
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
@@ -194,7 +196,7 @@ const keyBorderFn = key => {
 const keyDownHandle = e => {
     const key = e.key.toUpperCase();
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6 && !playing) {
+    if(boll && chance < 6 && playing) {
         keyBorderFn(key);
     }
 };
@@ -203,7 +205,7 @@ const keyDownHandle = e => {
 const keyBorderClickHandle = e => {
     const key = e.target.innerText.replace(' ', '');
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6 && !playing) {
+    if(boll && chance < 6 && playing) {
         keyBorderFn(key);
     }
 };
