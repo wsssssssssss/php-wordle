@@ -2,22 +2,15 @@ const keyBorderBtn = document.querySelectorAll("#app .keyborder button");
 const resetBtn = document.querySelector("#app .popup .reset");
 const shareBtn = document.querySelector("#app .popup .share");
 const words = document.querySelector("#app .words");
+const wordForm = document.querySelector("#app .wordForm");
 const popup = document.querySelector("#app .popup");
 
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
-
-let date = new Date();
-const maxTime = 900000;  // 15분
-const time = {
-    min: 0,
-    sec: 0
-};
 
 const totalTile = [];
 const word = [];
 let answer = [];
 let chance = 0;
-let setTimer = null;
 let playing = true;
 
 // 영어 단어담는 배열
@@ -54,11 +47,6 @@ const resetHandle = _ => {
     answer = wordArr[randomFn()].split("");
     console.log(answer);
 
-    setTimer = setInterval(timer, 1000);
-    time.min = 0;
-    time.sec = 0;
-    document.querySelector("#app .time .min").innerText = time.min;
-    document.querySelector("#app .time .sec").innerText = time.sec;
 
     date = new Date();
 
@@ -66,24 +54,12 @@ const resetHandle = _ => {
 };
 
 // 타이머
-const timer = _ => {
-    const nowDate = new Date();
 
-    if(time.sec >= 60) {
-        time.sec = 0;
-        time.min++;
-    }
-    time.sec++;
-
-    document.querySelector("#app .time .min").innerText = time.min;
-    document.querySelector("#app .time .sec").innerText = time.sec;
-
-    if(Date.parse(nowDate) === Date.parse(date) + maxTime){
-        alert("답 갱신되어 게임이 리셋됩니다.");
-        clearInterval(setTimer);
-        resetHandle();
-    }
+const phpDate = (time) => {
+    console.log(time);
 };
+
+
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
 const gameEnd = _ => {
@@ -92,7 +68,6 @@ const gameEnd = _ => {
     } )
     if(result || chance === 6) {
         playing = false;
-        clearInterval(setTimer);
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
         document.querySelector("#app .popup .tiles").innerHTML = `
@@ -113,7 +88,7 @@ const gameEnd = _ => {
 };
 
 // 입력한 단어가 정답인지 아닌지 체크해주는 함수
-const alphabetChk = _ => {
+const alphabetChk = () => {
     const color = word.map( (wor, idx) => {
         const result = answer.some( ans => {
             return ans.toUpperCase() === wor;
@@ -148,15 +123,21 @@ const alphabetChk = _ => {
     } );
 };
 
-// api 호출해서 해당 단어가 있는지 없는지 판별해주는 함수
-const apiSearch = _ => {
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.join("")}`)
-    .then( data => {
-        if(data.status === 404) {
-            alert("존재하지 않는 단어입니다.");
-        };
-    } )
+// 해당 단어의 존재 여부를 판단하는 함수
+const WordSearch = wordStr => {
+    const result = wordArr.some( ele => ele === wordStr.toLowerCase() );
+
+    if(result) {
+        alphabetChk();
+
+        chance++;
+        gameEnd();
+        word.splice(0, word.length);
+    } else {
+        alert("존재하지 않는 단어입니다.");
+    }
 };
+
 
 // 입력한 영어단어를 화면에 띄어주는 함수
 const wordChange = _ => {
@@ -177,12 +158,8 @@ const keyBorderFn = key => {
             alert('5글자 단어만 제출할 수 있습니다.');
             return false;
         };
-        apiSearch();
-        alphabetChk();
+        WordSearch(word.join(""));
         
-        chance++;
-        gameEnd();
-        word.splice(0, word.length);
     } else {
         if(word.length < 5) {
             word.push(key);
@@ -216,7 +193,6 @@ const init = async _ => {
     window.addEventListener('keydown', keyDownHandle);
     resetBtn.addEventListener('click', resetHandle);
     shareBtn.addEventListener('click', shareHandle);
-    setTimer = setInterval(timer, 1000);
     
     wordArr = await fetch("app/words.json").then(data => {
         return data.json();

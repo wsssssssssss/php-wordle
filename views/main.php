@@ -26,7 +26,6 @@
         </header>
         <main>
             <section class="flex">
-                <h3 class="time"> <span class="min">0</span>:<span class="sec">0</span> </h3>
                 <div class="words flex">
                     <div class="first word flex">
                         <div class="letter flex"><p></p></div>
@@ -128,5 +127,12 @@
         </div>
     </div>
     <script src="./app/index.js"></script>
+    <?php
+        $result = src\App\DB::fetchAll("SELECT * FROM wordle_tbl")[0];
+        echo "<script>";
+        echo "phpDate('{$result->wordle_date}');";
+        echo "</script>";
+    ?>
 </body>
 </html>
+

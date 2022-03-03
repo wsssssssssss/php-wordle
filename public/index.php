@@ -8,3 +8,4 @@ require_once( __ROOT__ . "/autoloader.php");
 require_once( __ROOT__ . "/web.php");
 
 src\App\Route::init();
+
