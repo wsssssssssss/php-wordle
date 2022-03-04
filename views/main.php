@@ -127,12 +127,7 @@
         </div>
     </div>
     <script src="./app/index.js"></script>
-    <?php
-        $result = src\App\DB::fetchAll("SELECT * FROM wordle_tbl")[0];
-        echo "<script>";
-        echo "phpTimer('{$result->wordle_date}');";
-        echo "</script>";
-    ?>
+
 </body>
 </html>
 

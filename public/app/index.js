@@ -1,3 +1,7 @@
+const wordStorage = JSON.parse(localStorage.getItem("word")) || {};
+const setItem = () => { localStorage.setItem("word", JSON.stringify(wordStorage)) };
+
+
 const keyBorderBtn = document.querySelectorAll("#app .keyborder button");
 const resetBtn = document.querySelector("#app .popup .reset");
 const shareBtn = document.querySelector("#app .popup .share");
@@ -6,6 +10,7 @@ const wordForm = document.querySelector("#app .wordForm");
 const popup = document.querySelector("#app .popup");
 
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
+
 
 const totalTile = [];
 const word = [];
@@ -32,43 +37,27 @@ ${document.querySelector("#app .popup .tiles").innerText
     navigator.clipboard.writeText(text);
 };
 
-// 게임 리셋 해주는 함수
-const resetHandle = _ => {
+const domReset = () => {
     [...document.querySelectorAll("#app .words .letter")].forEach( ele => {
         ele.removeAttribute("style");
         ele.children[0].removeAttribute("style");
         ele.children[0].innerText = '';
     } );
     keyBorderBtn.forEach( ele => ele.removeAttribute("style"));
+};
+
+// 게임 리셋 해주는 함수
+const resetHandle = _ => {
+    domReset();
     popup.style.display = "none";
     word.splice(0, word.length);
-    totalTile.splice(0, totalTile.length);
     chance = 0;
-    answer = wordArr[randomFn()].split("");
-    console.log(answer);
-
 
     date = new Date();
 
     playing = true;
 };
 
-// php 타이머
-const phpTimer = (time) => {
-    const phpTime = new Date(time);
-    const maxTime = 900000;
-
-    const timer = _ => {
-        const nowTime = new Date();
-    
-        if( (Date.parse(nowTime) - Date.parse(phpTime)) % maxTime === 0 ) {
-            alert("서버시간으로 부터 15분이 경과하였습니다. \n게임이 리셋됩니다.");
-            resetHandle();
-        }
-    };
-
-    setInterval(timer, 1000);
-};
 
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
@@ -76,16 +65,18 @@ const gameEnd = _ => {
     const result = answer.every( (ans, idx) => {
         return ans.toUpperCase() == word[idx];
     } )
+    
     if(result || chance === 6) {
+        console.log("gameEnd");
         playing = false;
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
         document.querySelector("#app .popup .tiles").innerHTML = `
-        ${totalTile.map( arr => {
+        ${wordStorage.data.list.map( arr => {
             const line = arr.map( ele => {
-                if(ele === "#787c7e") {
+                if(ele.color === "#787c7e") {
                     return '⬛';
-                } else if(ele === "#c9b458") {
+                } else if(ele.color === "#c9b458") {
                     return '🟨';
                 } else {
                     return '🟩';
@@ -99,53 +90,35 @@ const gameEnd = _ => {
 
 // 입력한 단어가 정답인지 아닌지 체크해주는 함수
 const alphabetChk = () => {
-    const color = word.map( (wor, idx) => {
+    const resultArr = word.map( (wor, idx) => {
         const result = answer.some( ans => {
             return ans.toUpperCase() === wor;
         } )
 
         if(result) {
             if(wor === answer[idx].toUpperCase()) {
-                return "#6aaa64";
+                return {word: wor, color: "#6aaa64"};
             } else {
-                return "#c9b458";
+                return {word: wor, color: "#c9b458"};
             }
         } else {
-            return "#787c7e";
+            return {word: wor, color: "#787c7e"};
         }
     } );
 
-    totalTile.push(color);
+    wordStorage.data.list.push(resultArr);
+    // setItem();
 
-    [...words.children[chance].children].forEach( (ele, idx) => {
-        ele.style.background = color[idx];
-        ele.children[0].style.color = "#fff";
-    } )
-
-    keyBorderBtn.forEach( ele => {
-        const key = ele.innerText;
-        word.forEach( (alp, idx) => {
-            if(key === alp){
-                ele.style.background = color[idx];
-                ele.style.color = "#fff";
-            }
-        } );
-    } );
+    domReset();
+    render();
 };
 
 // 해당 단어의 존재 여부를 판단하는 함수
-const WordSearch = wordStr => {
-    const result = wordArr.some( ele => ele === wordStr.toLowerCase() );
+const WordSearch = _ => {
+    alphabetChk();
 
-    if(result) {
-        alphabetChk();
-
-        chance++;
-        gameEnd();
-        word.splice(0, word.length);
-    } else {
-        alert("존재하지 않는 단어입니다.");
-    }
+    gameEnd();
+    word.splice(0, word.length);
 };
 
 
@@ -168,7 +141,7 @@ const keyBorderFn = key => {
             alert('5글자 단어만 제출할 수 있습니다.');
             return false;
         };
-        WordSearch(word.join(""));
+        WordSearch();
         
     } else {
         if(word.length < 5) {
@@ -177,6 +150,28 @@ const keyBorderFn = key => {
         };
 
     };
+};
+
+const render = () => {
+    console.log(wordStorage.data);
+    wordStorage.data.list.forEach( arr => {
+        arr.forEach( (ele, idx) => {
+            const letter = words.children[chance].children[idx];
+            letter.style.background = ele.color;
+            letter.children[0].innerText = ele.word;
+            letter.children[0].style.color = "#fff";
+
+            keyBorderBtn.forEach( key => {
+                if(key.innerText === ele.word) {
+                    key.style.background = ele.color;
+                    key.style.color = "#fff";
+                }
+            } )
+        } )
+
+        chance++;
+    } );
+
 };
 
 // 키보드 누를때 실행
@@ -208,8 +203,15 @@ const init = async _ => {
         return data.json();
     });
 
-    answer = wordArr[randomFn()].split("");
-    console.log(answer);    
+    if(!wordStorage.data) {
+        answer = wordArr[randomFn()].split("");
+        wordStorage.data = {answer: answer.join(""), list: []};
+    } else {
+        answer = wordStorage.data.answer.split("");
+    }
+    // setItem();
+
+    render();
 };
 
 window.onload = _ => {
