@@ -130,7 +130,7 @@
     <?php
         $result = src\App\DB::fetchAll("SELECT * FROM wordle_tbl")[0];
         echo "<script>";
-        echo "phpDate('{$result->wordle_date}');";
+        echo "phpTimer('{$result->wordle_date}');";
         echo "</script>";
     ?>
 </body>

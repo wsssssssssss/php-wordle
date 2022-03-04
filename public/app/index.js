@@ -53,12 +53,22 @@ const resetHandle = _ => {
     playing = true;
 };
 
-// 타이머
+// php 타이머
+const phpTimer = (time) => {
+    const phpTime = new Date(time);
+    const maxTime = 900000;
 
-const phpDate = (time) => {
-    console.log(time);
+    const timer = _ => {
+        const nowTime = new Date();
+    
+        if( (Date.parse(nowTime) - Date.parse(phpTime)) % maxTime === 0 ) {
+            alert("서버시간으로 부터 15분이 경과하였습니다. \n게임이 리셋됩니다.");
+            resetHandle();
+        }
+    };
+
+    setInterval(timer, 1000);
 };
-
 
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
