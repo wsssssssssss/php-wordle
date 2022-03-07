@@ -1,7 +1,6 @@
 const wordStorage = JSON.parse(localStorage.getItem("word")) || {};
 const setItem = () => { localStorage.setItem("word", JSON.stringify(wordStorage)) };
 
-
 const keyBorderBtn = document.querySelectorAll("#app .keyborder button");
 const resetBtn = document.querySelector("#app .popup .reset");
 const shareBtn = document.querySelector("#app .popup .share");
@@ -10,7 +9,6 @@ const wordForm = document.querySelector("#app .wordForm");
 const popup = document.querySelector("#app .popup");
 
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
-
 
 const totalTile = [];
 const word = [];
@@ -21,6 +19,7 @@ let playing = true;
 // 영어 단어담는 배열
 let wordArr = [];
 
+
 // 랜덤한 수 리턴 해주는 함수
 const randomFn = _ => {
     return Math.floor(Math.random()*wordArr.length) + 1;
@@ -30,7 +29,7 @@ const randomFn = _ => {
 const shareHandle = _ => {
     const text = `
 ${document.querySelector("#app .popup p").innerText}
-PlayTime ${time.min}:${time.sec}
+PlayTime ${0}:${0}
 ${document.querySelector("#app .popup .tiles").innerText
     }`;
 
@@ -47,18 +46,21 @@ const domReset = () => {
 };
 
 // 게임 리셋 해주는 함수
-const resetHandle = _ => {
+const resetHandle = () => {
     domReset();
     popup.style.display = "none";
     word.splice(0, word.length);
-    chance = 0;
+
+    answer = wordArr[randomFn()].split("");
+    wordStorage.answer = answer.join("");
+    wordStorage.list = [];
+    setItem();
 
     date = new Date();
-
+    chance = 0;
     playing = true;
+    console.log(wordStorage);
 };
-
-
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
 const gameEnd = _ => {
@@ -67,12 +69,11 @@ const gameEnd = _ => {
     } )
     
     if(result || chance === 6) {
-        console.log("gameEnd");
         playing = false;
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
         document.querySelector("#app .popup .tiles").innerHTML = `
-        ${wordStorage.data.list.map( arr => {
+        ${wordStorage.list.map( arr => {
             const line = arr.map( ele => {
                 if(ele.color === "#787c7e") {
                     return '⬛';
@@ -106,21 +107,37 @@ const alphabetChk = () => {
         }
     } );
 
-    wordStorage.data.list.push(resultArr);
-    // setItem();
+    wordStorage.list.push(resultArr);
+    setItem();
 
     domReset();
     render();
 };
 
 // 해당 단어의 존재 여부를 판단하는 함수
-const WordSearch = _ => {
+const WordSearch = () => {
     alphabetChk();
 
     gameEnd();
     word.splice(0, word.length);
 };
 
+// php 파일 실행후 다시 돌아온 페이지인지 확인하는 함수
+const returnChk = () => {
+    // 만약 php에서 유효성 검사를 하고 돌아오면 if문 안에 있는 구문들 실행
+    if(wordStorage.return !== "undefined") {
+        if(wordStorage.return) {
+            Array.from(wordStorage.word).forEach( text => {
+                word.push(text.toUpperCase());
+            } )
+            delete wordStorage.return;
+            delete wordStorage.word;
+            WordSearch();
+        }
+
+    };
+    console.log(wordStorage);
+};
 
 // 입력한 영어단어를 화면에 띄어주는 함수
 const wordChange = _ => {
@@ -129,6 +146,7 @@ const wordChange = _ => {
     word.forEach( (key, idx) => {
         words.children[chance].children[idx].children[0].innerText = key;
     } );
+
 };
 
 // 키보드에서 값을 입력받아 그 값에 따라 적절한 함수를 호출해주는 함수
@@ -141,8 +159,10 @@ const keyBorderFn = key => {
             alert('5글자 단어만 제출할 수 있습니다.');
             return false;
         };
-        WordSearch();
-        
+
+        wordForm.word.value = word.join("");
+        wordForm.submit();  // submit해서 php코드로 영어단어 유효성검사 진행
+
     } else {
         if(word.length < 5) {
             word.push(key);
@@ -153,8 +173,11 @@ const keyBorderFn = key => {
 };
 
 const render = () => {
-    console.log(wordStorage.data);
-    wordStorage.data.list.forEach( arr => {
+    returnChk();
+    console.log(wordStorage);
+
+    chance = 0;
+    wordStorage.list.forEach( arr => {
         arr.forEach( (ele, idx) => {
             const letter = words.children[chance].children[idx];
             letter.style.background = ele.color;
@@ -203,14 +226,14 @@ const init = async _ => {
         return data.json();
     });
 
-    if(!wordStorage.data) {
+    if(Object.keys(wordStorage).length === 0) {
         answer = wordArr[randomFn()].split("");
-        wordStorage.data = {answer: answer.join(""), list: []};
+        wordStorage.answer = answer.join("");
+        wordStorage.list = [];
     } else {
-        answer = wordStorage.data.answer.split("");
+        answer = wordStorage.answer.split("");
     }
-    // setItem();
-
+    setItem();
     render();
 };
 

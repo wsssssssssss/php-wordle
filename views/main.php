@@ -26,89 +26,92 @@
         </header>
         <main>
             <section class="flex">
-                <div class="words flex">
-                    <div class="first word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
+                <form method="post" class="wordForm">
+                    <input type="hidden" class="wordIpt" name="word">
+                    <div class="words flex">
+                        <div class="first word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
+                        <div class="second word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
+                        <div class="third word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
+                        <div class="fourth word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
+                        <div class="fifth word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
+                        <div class="sixth word flex">
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                            <div class="letter flex"><p></p></div>
+                        </div>
                     </div>
-                    <div class="second word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
+    
+                    <div class="keyborder">
+                        <div class="top flex">
+                            <button>Q</button>
+                            <button>W</button>
+                            <button>E</button>
+                            <button>R</button>
+                            <button>T</button>
+                            <button>Y</button>
+                            <button>U</button>
+                            <button>I</button>
+                            <button>O</button>
+                            <button>P</button>
+                        </div>
+    
+                        <div class="mid flex">
+                            <button>A</button>
+                            <button>S</button>
+                            <button>D</button>
+                            <button>F</button>
+                            <button>G</button>
+                            <button>H</button>
+                            <button>J</button>
+                            <button>K</button>
+                            <button>L</button>
+                        </div>
+    
+                        <div class="bottom flex">
+                            <button>ENTER</button>
+                            <button>Z</button>
+                            <button>X</button>
+                            <button>C</button>
+                            <button>V</button>
+                            <button>B</button>
+                            <button>N</button>
+                            <button>M</button>
+                            <button>BACK SPACE</button>
+                        </div>
                     </div>
-                    <div class="third word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                    </div>
-                    <div class="fourth word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                    </div>
-                    <div class="fifth word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                    </div>
-                    <div class="sixth word flex">
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                        <div class="letter flex"><p></p></div>
-                    </div>
-                </div>
-
-                <div class="keyborder">
-                    <div class="top flex">
-                        <button>Q</button>
-                        <button>W</button>
-                        <button>E</button>
-                        <button>R</button>
-                        <button>T</button>
-                        <button>Y</button>
-                        <button>U</button>
-                        <button>I</button>
-                        <button>O</button>
-                        <button>P</button>
-                    </div>
-
-                    <div class="mid flex">
-                        <button>A</button>
-                        <button>S</button>
-                        <button>D</button>
-                        <button>F</button>
-                        <button>G</button>
-                        <button>H</button>
-                        <button>J</button>
-                        <button>K</button>
-                        <button>L</button>
-                    </div>
-
-                    <div class="bottom flex">
-                        <button>ENTER</button>
-                        <button>Z</button>
-                        <button>X</button>
-                        <button>C</button>
-                        <button>V</button>
-                        <button>B</button>
-                        <button>N</button>
-                        <button>M</button>
-                        <button>BACK SPACE</button>
-                    </div>
-                </div>
+                </form>
             </section>
         </main>
         <footer></footer>
