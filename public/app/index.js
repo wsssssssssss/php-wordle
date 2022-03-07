@@ -16,13 +16,44 @@ let answer = [];
 let chance = 0;
 let playing = true;
 
+
 // 영어 단어담는 배열
 let wordArr = [];
-
 
 // 랜덤한 수 리턴 해주는 함수
 const randomFn = _ => {
     return Math.floor(Math.random()*wordArr.length) + 1;
+};
+
+const phpDBInsert = (date) => {
+    const Month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
+    const Day = date.getDate() + 1 < 10 ? `0${date.getDate()}` : `${date.getDate() + 1}`;
+
+    const Hours = date.getHours() + 1 < 10 ? `0${date.getHours()}` : `${date.getHours() + 1}`;
+    const Minutes = date.getMinutes() + 1 < 10 ? `0${date.getMinutes()}` : `${date.getMinutes() + 1}`;
+    const Seconds = date.getSeconds() + 1 < 10 ? `0${date.getSeconds()}` : `${date.getSeconds() + 1}`;
+
+    const dateStr = `${date.getFullYear()}-${Month}-${Day} ${Hours}:${Minutes}:${Seconds}`;
+
+
+    wordForm.date.value = dateStr;
+    wordForm.word.value = answer.join("");
+    wordForm.action = "/dateInsert";
+    wordForm.submit();
+
+};
+
+// 서버에서 시간을 받아와 15분이 지나면 게임을 리셋하는 함수
+const phpTimer = (sDate) => {
+    const maxMin = 900000; 
+    setInterval(() => {
+        const date = Date.parse(new Date(sDate));
+        const nowDate = Date.parse(new Date());
+        if(date+maxMin < nowDate) {
+            alert("15분이 경과하여 답이 갱신됩니다.");
+            phpDBInsert(new Date());
+        }
+    }, 1000);
 };
 
 // 클립보드에 게임결과 복사해주는 함수
@@ -36,6 +67,7 @@ ${document.querySelector("#app .popup .tiles").innerText
     navigator.clipboard.writeText(text);
 };
 
+// wordle의 타일들과 키보드의 style을 초기화 해주는 함수
 const domReset = () => {
     [...document.querySelectorAll("#app .words .letter")].forEach( ele => {
         ele.removeAttribute("style");
@@ -69,6 +101,7 @@ const gameEnd = _ => {
     } )
     
     if(result || chance === 6) {
+        phpTimer(new Date());
         playing = false;
         popup.style.display = "flex";
         document.querySelector("#app .popup .chance").innerText = chance;
@@ -158,10 +191,11 @@ const keyBorderFn = key => {
         if(word.length < 5) {
             alert('5글자 단어만 제출할 수 있습니다.');
             return false;
-        };
-
-        wordForm.word.value = word.join("");
-        wordForm.submit();  // submit해서 php코드로 영어단어 유효성검사 진행
+        } else {
+            wordForm.word.value = word.join("");
+            wordForm.action = "/wordSearch";
+            wordForm.submit();  // submit해서 php코드로 영어단어 유효성검사 진행
+        }
 
     } else {
         if(word.length < 5) {

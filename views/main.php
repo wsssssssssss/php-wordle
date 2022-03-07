@@ -11,23 +11,24 @@
     <div id="app">
         <header class="flex">
             <div class="menu icon">
-                <img src="./src/img/hamburger.png" alt="">
+                <img src="./src/img/hamburger.png" alt="hamburger">
             </div>
             <div class="question icon">
-                <img src="./src/img/question.png" alt="">
+                <img src="./src/img/question.png" alt="question">
             </div>
             <div class="title">Wordle</div>
             <div class="graph icon">
-                <img src="./src/img/graph.png" alt="">
+                <img src="./src/img/graph.png" alt="graph">
             </div>
             <div class="setting icon">
-                <img src="./src/img/setting.png" alt="">
+                <img src="./src/img/setting.png" alt="setting">
             </div>
         </header>
         <main>
             <section class="flex">
                 <form method="post" class="wordForm">
                     <input type="hidden" class="wordIpt" name="word">
+                    <input type="hidden" class="wordleDate" name="date">
                     <div class="words flex">
                         <div class="first word flex">
                             <div class="letter flex"><p></p></div>
@@ -124,13 +125,10 @@
                     <button class="share">share</button>
                     <button class="reset">reset</button>
                 </div>
-
-                
             </div>
         </div>
     </div>
     <script src="./app/index.js"></script>
-
 </body>
 </html>
 
