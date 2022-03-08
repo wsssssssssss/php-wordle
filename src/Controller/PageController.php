@@ -19,10 +19,12 @@ class PageController extends MasterController
         }
         
         $result = DB::fetchAll("SELECT * FROM wordle_tbl ORDER BY no desc");
+
         $date = $result[0]->wordle_date;
 
         echo "<script>";
-        echo "phpTimer('{$date}')";
+        echo "phpSetTime('{$date}');";
+        echo "phpTimer('{$date}');";
         echo "</script>";
 
     }
@@ -53,10 +55,9 @@ class PageController extends MasterController
     {
         $date = $_POST['date'];
         $word = $_POST['word'];
-
         $count = DB::fetchAll("SELECT COUNT(*) as count FROM wordle_tbl");
 
-        $result = DB::execute("INSERT INTO `wordle_tbl`(`no`, `word`, `wordle_date`) VALUES (?, ?, ?)", [$count[0]->count+1, $word, $date]);
+        DB::execute("INSERT INTO `wordle_tbl`(`no`, `word`, `wordle_date`) VALUES (?, ?, ?)", [$count[0]->count+1, $word, $date]);
 
         Lib::pageGO("/");
     }

@@ -118,7 +118,10 @@
         <footer></footer>
         <div class="popup none">
             <div class="share_popup flex">
-                <p>Wordle <?=date("Y-m-d") ?>, <span class="chance">5</span>/6</p>
+                <div class="text">
+                    <p>Wordle <?=date("Y-m-d") ?>, <span class="chance">5</span>/6</p>
+                    <p class="playTime">Playtime <span class="min"></span>:<span class="sec"></span></p>
+                </div>
 
                 <div class="tiles"></div>
                 <div class="btns">

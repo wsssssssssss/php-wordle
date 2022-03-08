@@ -7,15 +7,17 @@ const shareBtn = document.querySelector("#app .popup .share");
 const words = document.querySelector("#app .words");
 const wordForm = document.querySelector("#app .wordForm");
 const popup = document.querySelector("#app .popup");
-
 const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'enter', 'backspace'];
 
 const totalTile = [];
 const word = [];
 let answer = [];
 let chance = 0;
+let phpSetTimer = null;
 let playing = true;
 
+let phpDate =  null;
+let phpNowDate =  null;
 
 // 영어 단어담는 배열
 let wordArr = [];
@@ -25,16 +27,18 @@ const randomFn = _ => {
     return Math.floor(Math.random()*wordArr.length) + 1;
 };
 
+// DB에 현재 전달 받은 시간을 기록하는 함수
 const phpDBInsert = (date) => {
+    console.log("phpDBInsert");
+    clearInterval(phpSetTimer);
     const Month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
     const Day = date.getDate() + 1 < 10 ? `0${date.getDate()}` : `${date.getDate() + 1}`;
 
-    const Hours = date.getHours() + 1 < 10 ? `0${date.getHours()}` : `${date.getHours() + 1}`;
-    const Minutes = date.getMinutes() + 1 < 10 ? `0${date.getMinutes()}` : `${date.getMinutes() + 1}`;
-    const Seconds = date.getSeconds() + 1 < 10 ? `0${date.getSeconds()}` : `${date.getSeconds() + 1}`;
+    const Hours = date.getHours() + 1 < 10 ? `0${date.getHours()}` : `${date.getHours()}`;
+    const Minutes = date.getMinutes() + 1 < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`;
+    const Seconds = date.getSeconds() + 1 < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`;
 
     const dateStr = `${date.getFullYear()}-${Month}-${Day} ${Hours}:${Minutes}:${Seconds}`;
-
 
     wordForm.date.value = dateStr;
     wordForm.word.value = answer.join("");
@@ -43,12 +47,22 @@ const phpDBInsert = (date) => {
 
 };
 
+const phpSetTime = (sDate) => {
+    phpDate = new Date(sDate);
+    phpNowDate = new Date();
+};
+
 // 서버에서 시간을 받아와 15분이 지나면 게임을 리셋하는 함수
 const phpTimer = (sDate) => {
     const maxMin = 900000; 
-    setInterval(() => {
+    phpSetTimer = setInterval(() => {
         const date = Date.parse(new Date(sDate));
         const nowDate = Date.parse(new Date());
+
+        const lastTime = (date+900000) - nowDate;
+        const SecTime = (900000-lastTime)/1000;
+
+        console.log(Math.floor(SecTime/60)+":"+SecTime%60);
         if(date+maxMin < nowDate) {
             alert("15분이 경과하여 답이 갱신됩니다.");
             phpDBInsert(new Date());
@@ -60,7 +74,7 @@ const phpTimer = (sDate) => {
 const shareHandle = _ => {
     const text = `
 ${document.querySelector("#app .popup p").innerText}
-PlayTime ${0}:${0}
+PlayTime ${document.querySelector("#app .popup .playTime .min").innerText}:${document.querySelector("#app .popup .playTime .sec").innerText}
 ${document.querySelector("#app .popup .tiles").innerText
     }`;
 
@@ -79,16 +93,17 @@ const domReset = () => {
 
 // 게임 리셋 해주는 함수
 const resetHandle = () => {
+    console.log("reset");
+    phpDBInsert(new Date());
     domReset();
     popup.style.display = "none";
     word.splice(0, word.length);
-
+    
     answer = wordArr[randomFn()].split("");
     wordStorage.answer = answer.join("");
     wordStorage.list = [];
     setItem();
-
-    date = new Date();
+    
     chance = 0;
     playing = true;
     console.log(wordStorage);
@@ -96,14 +111,22 @@ const resetHandle = () => {
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
 const gameEnd = _ => {
+    console.log("gameEnd");
     const result = answer.every( (ans, idx) => {
         return ans.toUpperCase() == word[idx];
     } )
     
     if(result || chance === 6) {
-        phpTimer(new Date());
         playing = false;
+        clearInterval(phpSetTimer);
         popup.style.display = "flex";
+
+        const lastTime = (Date.parse(phpDate)+900000) - Date.parse(phpNowDate);
+        const SecTime = (900000-lastTime)/1000;
+
+        document.querySelector("#app .popup .playTime .min").innerText = Math.floor(SecTime/60);
+        document.querySelector("#app .popup .playTime .sec").innerText = SecTime%60;
+
         document.querySelector("#app .popup .chance").innerText = chance;
         document.querySelector("#app .popup .tiles").innerHTML = `
         ${wordStorage.list.map( arr => {
@@ -124,6 +147,7 @@ const gameEnd = _ => {
 
 // 입력한 단어가 정답인지 아닌지 체크해주는 함수
 const alphabetChk = () => {
+    console.log("alphabetChk");
     const resultArr = word.map( (wor, idx) => {
         const result = answer.some( ans => {
             return ans.toUpperCase() === wor;
@@ -143,12 +167,14 @@ const alphabetChk = () => {
     wordStorage.list.push(resultArr);
     setItem();
 
+    console.log(wordStorage);
     domReset();
     render();
 };
 
 // 해당 단어의 존재 여부를 판단하는 함수
 const WordSearch = () => {
+    console.log("WordSearch");
     alphabetChk();
 
     gameEnd();
@@ -157,18 +183,17 @@ const WordSearch = () => {
 
 // php 파일 실행후 다시 돌아온 페이지인지 확인하는 함수
 const returnChk = () => {
+    console.log("returnChk");
     // 만약 php에서 유효성 검사를 하고 돌아오면 if문 안에 있는 구문들 실행
-    if(wordStorage.return !== "undefined") {
-        if(wordStorage.return) {
-            Array.from(wordStorage.word).forEach( text => {
-                word.push(text.toUpperCase());
-            } )
-            delete wordStorage.return;
-            delete wordStorage.word;
-            WordSearch();
-        }
-
-    };
+    if(wordStorage.return) {
+        Array.from(wordStorage.word).forEach( text => {
+            word.push(text.toUpperCase());
+        } )
+        delete wordStorage.return;
+        delete wordStorage.word;
+        WordSearch();
+    }
+    
     console.log(wordStorage);
 };
 
@@ -207,9 +232,13 @@ const keyBorderFn = key => {
 };
 
 const render = () => {
-    returnChk();
-    console.log(wordStorage);
-
+    console.log(wordStorage.return);
+    console.log("render");
+    if(wordStorage.return !== "undefined") {
+        returnChk();
+    };
+    
+    console.log("list");
     chance = 0;
     wordStorage.list.forEach( arr => {
         arr.forEach( (ele, idx) => {
@@ -269,8 +298,11 @@ const init = async _ => {
     }
     setItem();
     render();
+
 };
 
 window.onload = _ => {
+    console.log("팝업 창 있을때 F5누르면 팝업창 없어짐.");
+    console.log("없어지면 'resetHandle();' console창에 입력 ㄱㄱ");
     init();
 };
