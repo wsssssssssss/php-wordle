@@ -29,23 +29,24 @@ const randomFn = _ => {
 
 // DB에 현재 전달 받은 시간을 기록하는 함수
 const phpDBInsert = (date) => {
-    console.log("phpDBInsert");
     clearInterval(phpSetTimer);
     const Month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
-    const Day = date.getDate() + 1 < 10 ? `0${date.getDate()}` : `${date.getDate() + 1}`;
+    const Day = date.getDate() + 1 < 10 ? `0${date.getDate()}` : `${date.getDate()}`;
 
     const Hours = date.getHours() + 1 < 10 ? `0${date.getHours()}` : `${date.getHours()}`;
     const Minutes = date.getMinutes() + 1 < 10 ? `0${date.getMinutes()}` : `${date.getMinutes()}`;
     const Seconds = date.getSeconds() + 1 < 10 ? `0${date.getSeconds()}` : `${date.getSeconds()}`;
-
+    
     const dateStr = `${date.getFullYear()}-${Month}-${Day} ${Hours}:${Minutes}:${Seconds}`;
-
+    
     wordForm.date.value = dateStr;
     wordForm.word.value = answer.join("");
     wordForm.action = "/dateInsert";
     wordForm.submit();
-
 };
+
+
+
 
 const phpSetTime = (sDate) => {
     phpDate = new Date(sDate);
@@ -93,7 +94,6 @@ const domReset = () => {
 
 // 게임 리셋 해주는 함수
 const resetHandle = () => {
-    console.log("reset");
     phpDBInsert(new Date());
     domReset();
     popup.style.display = "none";
@@ -102,52 +102,55 @@ const resetHandle = () => {
     answer = wordArr[randomFn()].split("");
     wordStorage.answer = answer.join("");
     wordStorage.list = [];
+    wordStorage.result = false;
     setItem();
     
     chance = 0;
-    playing = true;
     console.log(wordStorage);
+};
+
+const gameResultPop = () => {
+    clearInterval(phpSetTimer);
+    popup.style.display = "flex";
+
+    const lastTime = (Date.parse(phpDate)+900000) - Date.parse(phpNowDate);
+    const SecTime = (900000-lastTime)/1000;
+
+    document.querySelector("#app .popup .playTime .min").innerText = Math.floor(SecTime/60);
+    document.querySelector("#app .popup .playTime .sec").innerText = SecTime%60;
+
+    document.querySelector("#app .popup .chance").innerText = chance;
+    document.querySelector("#app .popup .tiles").innerHTML = `
+    ${wordStorage.list.map( arr => {
+        const line = arr.map( ele => {
+            if(ele.color === "#787c7e") {
+                return '⬛';
+            } else if(ele.color === "#c9b458") {
+                return '🟨';
+            } else {
+                return '🟩';
+            }
+        } ).join("")
+        return `<div>${line}</div>`;
+    } ).join("")}
+    `;
 };
 
 // 게임이 끝났는지 안 끝났는지 판단하는 함수
 const gameEnd = _ => {
-    console.log("gameEnd");
     const result = answer.every( (ans, idx) => {
         return ans.toUpperCase() == word[idx];
     } )
     
     if(result || chance === 6) {
-        playing = false;
-        clearInterval(phpSetTimer);
-        popup.style.display = "flex";
-
-        const lastTime = (Date.parse(phpDate)+900000) - Date.parse(phpNowDate);
-        const SecTime = (900000-lastTime)/1000;
-
-        document.querySelector("#app .popup .playTime .min").innerText = Math.floor(SecTime/60);
-        document.querySelector("#app .popup .playTime .sec").innerText = SecTime%60;
-
-        document.querySelector("#app .popup .chance").innerText = chance;
-        document.querySelector("#app .popup .tiles").innerHTML = `
-        ${wordStorage.list.map( arr => {
-            const line = arr.map( ele => {
-                if(ele.color === "#787c7e") {
-                    return '⬛';
-                } else if(ele.color === "#c9b458") {
-                    return '🟨';
-                } else {
-                    return '🟩';
-                }
-            } ).join("")
-            return `<div>${line}</div>`;
-        } ).join("")}
-        `;
+        wordStorage.result = true;
+        setItem();
+        gameResultPop();
     }
 };
 
 // 입력한 단어가 정답인지 아닌지 체크해주는 함수
 const alphabetChk = () => {
-    console.log("alphabetChk");
     const resultArr = word.map( (wor, idx) => {
         const result = answer.some( ans => {
             return ans.toUpperCase() === wor;
@@ -167,34 +170,16 @@ const alphabetChk = () => {
     wordStorage.list.push(resultArr);
     setItem();
 
-    console.log(wordStorage);
     domReset();
     render();
 };
 
 // 해당 단어의 존재 여부를 판단하는 함수
 const WordSearch = () => {
-    console.log("WordSearch");
     alphabetChk();
 
     gameEnd();
     word.splice(0, word.length);
-};
-
-// php 파일 실행후 다시 돌아온 페이지인지 확인하는 함수
-const returnChk = () => {
-    console.log("returnChk");
-    // 만약 php에서 유효성 검사를 하고 돌아오면 if문 안에 있는 구문들 실행
-    if(wordStorage.return) {
-        Array.from(wordStorage.word).forEach( text => {
-            word.push(text.toUpperCase());
-        } )
-        delete wordStorage.return;
-        delete wordStorage.word;
-        WordSearch();
-    }
-    
-    console.log(wordStorage);
 };
 
 // 입력한 영어단어를 화면에 띄어주는 함수
@@ -217,11 +202,23 @@ const keyBorderFn = key => {
             alert('5글자 단어만 제출할 수 있습니다.');
             return false;
         } else {
-            wordForm.word.value = word.join("");
-            wordForm.action = "/wordSearch";
-            wordForm.submit();  // submit해서 php코드로 영어단어 유효성검사 진행
-        }
 
+            fetch(`/wordCheck?word=${word.join("")}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then( data => {
+                console.log(data);
+                if(data.code === '200'){
+                    WordSearch();
+                } else {
+                    alert(`${data.text}`);
+                }
+            } );
+
+        }
     } else {
         if(word.length < 5) {
             word.push(key);
@@ -232,13 +229,11 @@ const keyBorderFn = key => {
 };
 
 const render = () => {
-    console.log(wordStorage.return);
-    console.log("render");
-    if(wordStorage.return !== "undefined") {
-        returnChk();
-    };
+    console.log(wordStorage);
+    if(wordStorage.result) {
+        gameResultPop();
+    }
     
-    console.log("list");
     chance = 0;
     wordStorage.list.forEach( arr => {
         arr.forEach( (ele, idx) => {
@@ -264,7 +259,7 @@ const render = () => {
 const keyDownHandle = e => {
     const key = e.key.toUpperCase();
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6 && playing) {
+    if(boll && chance < 6 && !wordStorage.result) {
         keyBorderFn(key);
     }
 };
@@ -273,7 +268,7 @@ const keyDownHandle = e => {
 const keyBorderClickHandle = e => {
     const key = e.target.innerText.replace(' ', '');
     const boll = keys.some( ele => key.toLowerCase() === ele );
-    if(boll && chance < 6 && playing) {
+    if(boll && chance < 6 && !wordStorage.result) {
         keyBorderFn(key);
     }
 };
@@ -293,6 +288,7 @@ const init = async _ => {
         answer = wordArr[randomFn()].split("");
         wordStorage.answer = answer.join("");
         wordStorage.list = [];
+        wordStorage.result = false;
     } else {
         answer = wordStorage.answer.split("");
     }
@@ -302,7 +298,5 @@ const init = async _ => {
 };
 
 window.onload = _ => {
-    console.log("팝업 창 있을때 F5누르면 팝업창 없어짐.");
-    console.log("없어지면 'resetHandle();' console창에 입력 ㄱㄱ");
     init();
 };
