@@ -76,40 +76,40 @@
     
                     <div class="keyborder">
                         <div class="top flex">
-                            <button>Q</button>
-                            <button>W</button>
-                            <button>E</button>
-                            <button>R</button>
-                            <button>T</button>
-                            <button>Y</button>
-                            <button>U</button>
-                            <button>I</button>
-                            <button>O</button>
-                            <button>P</button>
+                            <button type="button">Q</button>
+                            <button type="button">W</button>
+                            <button type="button">E</button>
+                            <button type="button">R</button>
+                            <button type="button">T</button>
+                            <button type="button">Y</button>
+                            <button type="button">U</button>
+                            <button type="button">I</button>
+                            <button type="button">O</button>
+                            <button type="button">P</button>
                         </div>
     
                         <div class="mid flex">
-                            <button>A</button>
-                            <button>S</button>
-                            <button>D</button>
-                            <button>F</button>
-                            <button>G</button>
-                            <button>H</button>
-                            <button>J</button>
-                            <button>K</button>
-                            <button>L</button>
+                            <button type="button">A</button>
+                            <button type="button">S</button>
+                            <button type="button">D</button>
+                            <button type="button">F</button>
+                            <button type="button">G</button>
+                            <button type="button">H</button>
+                            <button type="button">J</button>
+                            <button type="button">K</button>
+                            <button type="button">L</button>
                         </div>
     
                         <div class="bottom flex">
-                            <button>ENTER</button>
-                            <button>Z</button>
-                            <button>X</button>
-                            <button>C</button>
-                            <button>V</button>
-                            <button>B</button>
-                            <button>N</button>
-                            <button>M</button>
-                            <button>BACK SPACE</button>
+                            <button type="button">ENTER</button>
+                            <button type="button">Z</button>
+                            <button type="button">X</button>
+                            <button type="button">C</button>
+                            <button type="button">V</button>
+                            <button type="button">B</button>
+                            <button type="button">N</button>
+                            <button type="button">M</button>
+                            <button type="button">BACK SPACE</button>
                         </div>
                     </div>
                 </form>
