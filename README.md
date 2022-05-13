@@ -59,5 +59,6 @@ Wordle은 6번의 시도로 영어 단어가 무엇인지 맞추는 게임이다
   ```
 
 ### 3. Server side
-- 단어의 판별은 api가 제공돼서 client에서 http request를 통해 판별한다.
+- words.josn을 사용하여 단어를 판별하는 api를 만든다.
+- 만든 api를 사용하여 client에서 http request를 통해 판별한다.
 - 15분 갱신은 로컬 타임과 상관없이 server side 기준으로 갱신된다. (페이지 첫 접속이여도 서버기준 단어가 갱신될 시간이면 갱신된다.)
